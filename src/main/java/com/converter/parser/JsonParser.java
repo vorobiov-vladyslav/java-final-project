@@ -14,22 +14,36 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Parser implementation for JSON files.
+ */
 public class JsonParser implements Parser {
 
+    /**
+     * Jackson ObjectMapper for JSON processing.
+     */
     private final ObjectMapper objectMapper;
 
+    /**
+     * Constructs a new JSON parser.
+     */
     public JsonParser() {
         this.objectMapper = new ObjectMapper();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public List<DataRecord> parse(String filePath) {
+    public List<DataRecord> parse(final String filePath) {
         File file = new File(filePath);
         if (!file.exists()) {
-            throw new ParseException("Error: Input file '" + filePath + "' not found");
+            throw new ParseException(
+                    "Error: Input file '" + filePath + "' not found");
         }
         if (!file.canRead()) {
-            throw new ParseException("Error: Cannot read file '" + filePath + "'");
+            throw new ParseException(
+                    "Error: Cannot read file '" + filePath + "'");
         }
 
         try {
@@ -37,17 +51,30 @@ public class JsonParser implements Parser {
             return parseJsonNode(rootNode);
         } catch (JsonProcessingException e) {
             String message = e.getOriginalMessage();
-            long line = e.getLocation() != null ? e.getLocation().getLineNr() : -1;
+            long line = e.getLocation() != null
+                    ? e.getLocation().getLineNr() : -1;
             if (line > 0) {
-                throw new ParseException("Error: Invalid JSON syntax at line " + line + ": " + message, e);
+                throw new ParseException(
+                        "Error: Invalid JSON syntax at line "
+                                + line + ": " + message, e);
             }
-            throw new ParseException("Error: Invalid JSON syntax: " + message, e);
+            throw new ParseException(
+                    "Error: Invalid JSON syntax: " + message, e);
         } catch (IOException e) {
-            throw new ParseException("Error: Failed to read JSON file '" + filePath + "': " + e.getMessage(), e);
+            throw new ParseException(
+                    "Error: Failed to read JSON file '"
+                            + filePath + "': " + e.getMessage(), e);
         }
     }
 
-    private List<DataRecord> parseJsonNode(JsonNode rootNode) {
+    /**
+     * Parses a JSON node into a list of data records.
+     *
+     * @param rootNode the root JSON node
+     * @return a list of data records
+     * @throws ValidationException if the JSON structure is invalid
+     */
+    private List<DataRecord> parseJsonNode(final JsonNode rootNode) {
         List<DataRecord> records = new ArrayList<>();
 
         if (rootNode.isArray()) {
@@ -55,19 +82,28 @@ public class JsonParser implements Parser {
                 if (node.isObject()) {
                     records.add(parseObject(node));
                 } else {
-                    throw new ValidationException("Error: Array elements must be objects");
+                    throw new ValidationException(
+                            "Error: Array elements must be objects");
                 }
             }
         } else if (rootNode.isObject()) {
             records.add(parseObject(rootNode));
         } else {
-            throw new ValidationException("Error: JSON must be an object or array of objects");
+            throw new ValidationException(
+                    "Error: JSON must be an object or array of objects");
         }
 
         return records;
     }
 
-    private DataRecord parseObject(JsonNode node) {
+    /**
+     * Parses a JSON object node into a data record.
+     *
+     * @param node the JSON object node
+     * @return a data record containing the object's fields
+     * @throws ValidationException if nested structures are found
+     */
+    private DataRecord parseObject(final JsonNode node) {
         DataRecord record = new DataRecord();
         Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
 
@@ -77,7 +113,9 @@ public class JsonParser implements Parser {
             JsonNode value = field.getValue();
 
             if (value.isObject() || value.isArray()) {
-                throw new ValidationException("Error: Nested structures are not supported. Please use flat JSON");
+                throw new ValidationException(
+                        "Error: Nested structures are not supported. "
+                                + "Please use flat JSON");
             }
 
             String stringValue = value.isNull() ? "" : value.asText();
@@ -87,6 +125,9 @@ public class JsonParser implements Parser {
         return record;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getSupportedExtension() {
         return "json";

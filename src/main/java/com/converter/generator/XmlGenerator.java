@@ -14,25 +14,41 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Generator implementation for XML files.
+ */
 public class XmlGenerator implements Generator {
 
+    /**
+     * The root element name for XML output.
+     */
     private static final String ROOT_ELEMENT = "records";
+
+    /**
+     * The element name for each record in XML output.
+     */
     private static final String RECORD_ELEMENT = "record";
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void generate(List<DataRecord> data, String filePath) {
+    public void generate(final List<DataRecord> data, final String filePath) {
         File file = new File(filePath);
         File parentDir = file.getParentFile();
         if (parentDir != null && !parentDir.exists()) {
             if (!parentDir.mkdirs()) {
-                throw new ConversionException("Error: Cannot create directory '" + parentDir.getPath() + "'");
+                throw new ConversionException(
+                        "Error: Cannot create directory '"
+                                + parentDir.getPath() + "'");
             }
         }
 
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
 
         try (FileOutputStream fos = new FileOutputStream(file);
-             OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
+             OutputStreamWriter osw =
+                     new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
 
             XMLStreamWriter writer = factory.createXMLStreamWriter(osw);
 
@@ -52,13 +68,25 @@ public class XmlGenerator implements Generator {
             writer.close();
 
         } catch (XMLStreamException e) {
-            throw new ConversionException("Error: Failed to generate XML: " + e.getMessage(), e);
+            throw new ConversionException(
+                    "Error: Failed to generate XML: " + e.getMessage(), e);
         } catch (IOException e) {
-            throw new ConversionException("Error: Failed to write XML file '" + filePath + "': " + e.getMessage(), e);
+            throw new ConversionException(
+                    "Error: Failed to write XML file '"
+                            + filePath + "': " + e.getMessage(), e);
         }
     }
 
-    private void writeRecord(XMLStreamWriter writer, DataRecord record) throws XMLStreamException {
+    /**
+     * Writes a single data record to the XML stream.
+     *
+     * @param writer the XML stream writer
+     * @param record the data record to write
+     * @throws XMLStreamException if writing fails
+     */
+    private void writeRecord(
+            final XMLStreamWriter writer,
+            final DataRecord record) throws XMLStreamException {
         writer.writeCharacters("  ");
         writer.writeStartElement(RECORD_ELEMENT);
         writer.writeCharacters("\n");
@@ -66,7 +94,8 @@ public class XmlGenerator implements Generator {
         for (Map.Entry<String, String> field : record.getFields().entrySet()) {
             writer.writeCharacters("    ");
             writer.writeStartElement(sanitizeElementName(field.getKey()));
-            writer.writeCharacters(field.getValue() != null ? field.getValue() : "");
+            String value = field.getValue();
+            writer.writeCharacters(value != null ? value : "");
             writer.writeEndElement();
             writer.writeCharacters("\n");
         }
@@ -76,7 +105,13 @@ public class XmlGenerator implements Generator {
         writer.writeCharacters("\n");
     }
 
-    private String sanitizeElementName(String name) {
+    /**
+     * Sanitizes a string to be a valid XML element name.
+     *
+     * @param name the original name
+     * @return a valid XML element name
+     */
+    private String sanitizeElementName(final String name) {
         if (name == null || name.isEmpty()) {
             return "field";
         }
@@ -95,7 +130,8 @@ public class XmlGenerator implements Generator {
 
         for (int i = 1; i < name.length(); i++) {
             char c = name.charAt(i);
-            if (Character.isLetterOrDigit(c) || c == '_' || c == '-' || c == '.') {
+            if (Character.isLetterOrDigit(c)
+                    || c == '_' || c == '-' || c == '.') {
                 sb.append(c);
             } else {
                 sb.append('_');
@@ -105,6 +141,9 @@ public class XmlGenerator implements Generator {
         return sb.toString();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getSupportedExtension() {
         return "xml";

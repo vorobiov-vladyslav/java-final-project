@@ -11,15 +11,23 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Generator implementation for CSV files.
+ */
 public class CsvGenerator implements Generator {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void generate(List<DataRecord> data, String filePath) {
+    public void generate(final List<DataRecord> data, final String filePath) {
         File file = new File(filePath);
         File parentDir = file.getParentFile();
         if (parentDir != null && !parentDir.exists()) {
             if (!parentDir.mkdirs()) {
-                throw new ConversionException("Error: Cannot create directory '" + parentDir.getPath() + "'");
+                throw new ConversionException(
+                        "Error: Cannot create directory '"
+                                + parentDir.getPath() + "'");
             }
         }
 
@@ -27,7 +35,9 @@ public class CsvGenerator implements Generator {
             try {
                 new FileWriter(file).close();
             } catch (IOException e) {
-                throw new ConversionException("Error: Failed to create CSV file '" + filePath + "': " + e.getMessage(), e);
+                throw new ConversionException(
+                        "Error: Failed to create CSV file '"
+                                + filePath + "': " + e.getMessage(), e);
             }
             return;
         }
@@ -52,10 +62,15 @@ public class CsvGenerator implements Generator {
             }
 
         } catch (IOException e) {
-            throw new ConversionException("Error: Failed to write CSV file '" + filePath + "': " + e.getMessage(), e);
+            throw new ConversionException(
+                    "Error: Failed to write CSV file '"
+                            + filePath + "': " + e.getMessage(), e);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getSupportedExtension() {
         return "csv";
