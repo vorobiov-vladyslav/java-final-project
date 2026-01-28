@@ -104,6 +104,56 @@ class FileConverterTest {
     }
 
     @Test
+    void testConvertCsvToXml() throws IOException {
+        String csv = """
+                id,name
+                1,John
+                2,Jane
+                """;
+        Path inputFile = tempDir.resolve("input.csv");
+        Path outputFile = tempDir.resolve("output.xml");
+        Files.writeString(inputFile, csv);
+
+        FileConverter converter = new FileConverter(inputFile.toString(), outputFile.toString());
+        converter.convert(inputFile.toString(), outputFile.toString());
+
+        assertTrue(Files.exists(outputFile));
+        String content = Files.readString(outputFile);
+        assertTrue(content.contains("<records>"));
+        assertTrue(content.contains("<id>1</id>"));
+        assertTrue(content.contains("<name>John</name>"));
+    }
+
+    @Test
+    void testConvertXmlToCsv() throws IOException {
+        String xml = """
+                <?xml version="1.0"?>
+                <records>
+                  <record>
+                    <id>1</id>
+                    <name>John</name>
+                  </record>
+                  <record>
+                    <id>2</id>
+                    <name>Jane</name>
+                  </record>
+                </records>
+                """;
+        Path inputFile = tempDir.resolve("input.xml");
+        Path outputFile = tempDir.resolve("output.csv");
+        Files.writeString(inputFile, xml);
+
+        FileConverter converter = new FileConverter(inputFile.toString(), outputFile.toString());
+        converter.convert(inputFile.toString(), outputFile.toString());
+
+        assertTrue(Files.exists(outputFile));
+        List<String> lines = Files.readAllLines(outputFile);
+        assertTrue(lines.size() >= 3);
+        assertTrue(lines.get(0).contains("id"));
+        assertTrue(lines.get(0).contains("name"));
+    }
+
+    @Test
     void testConvertNonExistentFileThrowsException() {
         Path inputFile = tempDir.resolve("nonexistent.json");
         Path outputFile = tempDir.resolve("output.csv");
