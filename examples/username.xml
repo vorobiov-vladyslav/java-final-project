@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<records>
+  <record>
+    <Username>booker12</Username>
+    <Identifier>9012</Identifier>
+    <First_name>Rachel</First_name>
+    <Last_name>Booker</Last_name>
+  </record>
+  <record>
+    <Username>grey07</Username>
+    <Identifier>2070</Identifier>
+    <First_name>Laura</First_name>
+    <Last_name>Grey</Last_name>
+  </record>
+  <record>
+    <Username>johnson81</Username>
+    <Identifier>4081</Identifier>
+    <First_name>Craig</First_name>
+    <Last_name>Johnson</Last_name>
+  </record>
+  <record>
+    <Username>jenkins46</Username>
+    <Identifier>9346</Identifier>
+    <First_name>Mary</First_name>
+    <Last_name>Jenkins</Last_name>
+  </record>
+  <record>
+    <Username>smith79</Username>
+    <Identifier>5079</Identifier>
+    <First_name>Jamie</First_name>
+    <Last_name>Smith</Last_name>
+  </record>
+</records>
